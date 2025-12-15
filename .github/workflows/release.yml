@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build and Release
+    runs-on: macos-14  # Apple Silicon runner
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Build release binary
+        run: swift build -c release
+
+      - name: Create app bundle
+        run: ./scripts/build-app.sh
+
+      - name: Create DMG
+        run: |
+          APP_NAME="PortForwarder"
+          VERSION="${GITHUB_REF_NAME}"
+          DMG_NAME="${APP_NAME}-${VERSION}-arm64.dmg"
+
+          # Create temporary directory for DMG contents
+          mkdir -p dmg_contents
+          cp -r .build/release/PortForwarder.app dmg_contents/
+
+          # Create Applications symlink
+          ln -s /Applications dmg_contents/Applications
+
+          # Create DMG
+          hdiutil create -volname "$APP_NAME" \
+            -srcfolder dmg_contents \
+            -ov -format UDZO \
+            "$DMG_NAME"
+
+          # Cleanup
+          rm -rf dmg_contents
+
+          echo "DMG_NAME=$DMG_NAME" >> $GITHUB_ENV
+
+      - name: Get release notes
+        id: release_notes
+        run: |
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_OUTPUT
+          echo "## PortForwarder ${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo "### Installation" >> $GITHUB_OUTPUT
+          echo "1. Download the DMG file below" >> $GITHUB_OUTPUT
+          echo "2. Open the DMG and drag PortForwarder to Applications" >> $GITHUB_OUTPUT
+          echo "3. Launch from Applications or Spotlight" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo "### Requirements" >> $GITHUB_OUTPUT
+          echo "- macOS 15.0+ (Sequoia)" >> $GITHUB_OUTPUT
+          echo "- Apple Silicon Mac (M1/M2/M3/M4)" >> $GITHUB_OUTPUT
+          echo "- kubectl (auto-installed via Homebrew if missing)" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.DMG_NAME }}
+          body: ${{ steps.release_notes.outputs.RELEASE_NOTES }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
