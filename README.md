@@ -36,7 +36,10 @@ Download the latest DMG from [GitHub Releases](https://github.com/productdevbook
 1. Download `PortForwarder-vX.X.X-arm64.dmg`
 2. Open the DMG file
 3. Drag PortForwarder to your Applications folder
-4. Launch from Applications or Spotlight
+4. **First launch:** Right-click the app → Select "Open" → Click "Open" in the dialog
+5. After that, launch normally from Applications or Spotlight
+
+> **Note:** The app is ad-hoc signed. On first launch, macOS Gatekeeper will show a warning. Right-click and select "Open" to bypass this. This only needs to be done once.
 
 > **Note:** Currently only Apple Silicon (M1/M2/M3/M4) Macs are supported.
 
