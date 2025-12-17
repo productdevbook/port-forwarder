@@ -1,5 +1,17 @@
 # PortForwarder
 
+> [!IMPORTANT]
+> ## This project has been moved to [port-killer](https://github.com/productdevbook/port-killer)
+>
+> All features from this repository have been merged into port-killer. Please use the new repository for:
+> - Latest releases and updates
+> - Bug reports and feature requests
+> - Contributing
+>
+> **This repository is now archived and no longer maintained.**
+
+---
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![macOS](https://img.shields.io/badge/macOS-15.0%2B-brightgreen)](https://www.apple.com/macos/)
 [![Swift](https://img.shields.io/badge/Swift-6.0-orange)](https://swift.org)
